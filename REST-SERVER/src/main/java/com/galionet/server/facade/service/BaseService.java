@@ -35,7 +35,7 @@ public abstract class BaseService {
 		Method calledMethod = methodSet.get(method);
 		Class[] clazzes = calledMethod.getParameterTypes();
 		BaseModel param = null;
-		if (clazzes != null && clazzes.length > 0) {
+		if (clazzes != null && clazzes.length > 0 && paramStr != null && !paramStr.isEmpty()) {
 			param = deserializeParameter(paramStr, clazzes[0]);
 		}
 		if (calledMethod != null) {

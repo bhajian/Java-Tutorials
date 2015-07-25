@@ -61,12 +61,13 @@ public class GateService {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@Consumes("application/x-www-form-urlencoded")
-	public Response postData(@Context HttpServletRequest request, @FormParam("param") String param)
+	public Response postData(@Context HttpServletRequest request)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		try {
 
 			String command = request.getHeader("command");
 			String subCommand = request.getHeader("subCommand");
+			String param = request.getHeader("param");
 			BaseModel res = getServiceDispatcher().Dispatch(command, subCommand, param);
 			if (res.isHasAttachment()) {
 				return Response.ok(res.getAttachment(), MediaType.APPLICATION_OCTET_STREAM_TYPE).build();

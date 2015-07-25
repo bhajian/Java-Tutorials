@@ -26,7 +26,6 @@ app.controller("AppListCtrl", function($scope, $http, $templateCache) {
 			headers: { 'command': 'youtubeSearch', 'subCommand' : 'search' , 'param':paramValue } 
 			}).
 			success(function(data, status, headers, config) {
-				
 	    	$scope.apps = data;                  //set view model
 	    	$scope.view = './view/list.html'; //set to list view
 			}).

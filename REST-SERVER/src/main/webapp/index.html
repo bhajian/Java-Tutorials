@@ -26,7 +26,7 @@
 		rel="stylesheet" type="text/css">
 	<script src="js/library/angular.min.js"></script>
 <!-- jQuery -->
-	<script src="js/library/jquery.js"></script>
+	<script src="js/library/jquery.min.js"></script>
 	<!-- Bootstrap Core JavaScript -->
 	<script src="js/library/bootstrap.min.js"></script>
 	
@@ -66,9 +66,6 @@
 							<li data-target="#carousel-example-generic" data-slide-to="1"></li>
 							<li data-target="#carousel-example-generic" data-slide-to="2"></li>
 						</ol>
-
-
-
 						<!-- Controls -->
 						<a class="left carousel-control" href="#carousel-example-generic"
 							data-slide="prev"> <span class="icon-prev"></span>
@@ -83,36 +80,24 @@
 					<h1 class="brand-name">My tutorial template</h1>
 					<hr class="tagline-divider">
 
-					<div ng-app="mainApp" ng-controller="studentController">
-						<table border="0">
-							<tr>
-								<td>Enter first name:</td>
-								<td><input type="text" ng-model="student.firstName"></td>
-							</tr>
-							<tr>
-								<td>Enter last name:</td>
-								<td><input type="text" ng-model="student.lastName"></td>
-							</tr>
-							<tr>
-								<td>Name:</td>
-								<td>{{student.fullName()}}</td>
-							</tr>
-							<tr>
-								<td>Subject:</td>
-								<td>
-									<table>
-										<tr>
-											<th>Name</th>
-											<th>Last Name</th>
-										</tr>
-										<tr ng-repeat="subject in student.subjects">
-											<td>{{ subject.name }}</td>
-											<td>{{ subject.lastName }}</td>
-										</tr>
-									</table>
-								</td>
-							</tr>
-						</table>
+					<div ng-app="mainApp" ng-controller="userController">
+						<form name="userForm" novalidate>
+							<table border="0">
+								<tr>
+									<td>Enter first name:</td>
+									<td><input type="text" ng-model="name"></td>
+								</tr>
+								<tr>
+									<td>Enter last name:</td>
+									<td><input type="text" ng-model="lastName"></td>
+								</tr>
+								<tr>
+									<td><button ng-click="reset();" class="btn btn-default">Reset</button></td>
+									<td><button ng-click="submit();" class="btn btn-default">Submit</button></td>
+								</tr>
+							</table>
+						</form>
+						<ng-include src="view"></ng-include>
 					</div>
 
 				</div>
@@ -138,39 +123,54 @@
 	<script>
 		var mainApp = angular.module("mainApp", []);
 
-		mainApp.controller('studentController', function($scope) {
-			
-			
-			
-			
-			$scope.student = {
-				firstName : "Mahesh",
-				lastName : "Parashar",
-				fees : 500,
-				subjects : [ {
-					name : 'Physics',
-					marks : 70
-				}, {
-					name : 'Chemistry',
-					marks : 80
-				}, {
-					name : 'Math',
-					marks : 65
-				}, {
-					name : 'English',
-					marks : 75
-				}, {
-					name : 'Hindi',
-					marks : 67
-				} ],
-				fullName : function() {
-					var studentObject;
-					studentObject = $scope.student;
-					return studentObject.firstName + " "
-							+ studentObject.lastName;
-				}
-			};
+		mainApp.controller("userController", function($scope, $http, $templateCache) {
+			$scope.listApps = function() {
+				$http(
+					{method: 'GET', url: './rest/Gate/GetData', 
+					headers: { 'command': 'user', 'subCommand' : 'getUsers' , 'param':'' } 
+					, cache: $templateCache}).
+					success(function(data, status, headers, config) {
+				    	$scope.users = data;                  //set view model
+				    	$scope.view = './view/list.html'; //set to list view
+				    	
+					}).
+					error(function(data, status, headers, config) {
+						$scope.users = data || "Request failed";
+						$scope.status = status;
+						$scope.view = './view/list.html';
+					});
+			}
+			$scope.reset = function(){
+		        $scope.name = "";
+		        $scope.lastName = "";
+		  	}
+			$scope.submit = function() {
+				var paramValue = '{"name" : "'+$scope.name+'", "lastName":"'+$scope.lastName+'"}';
+				
+				$http(
+					{
+						method: 'POST', 
+						url: './rest/Gate/PostData',
+						data: {'param':paramValue },
+						headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'command': 'user', 'subCommand' : 'createUser' , 'param':paramValue } ,
+						cache: $templateCache}).
+					success(function(data, status, headers, config) {
+				    	$scope.users.userList.push({
+				    		name : $scope.name,
+				    		lastName : $scope.lastName
+				    	});
+				    	$scope.view = './view/list.html'; //set to list view
+					}).
+					error(function(data, status, headers, config) {
+						$scope.users = data || "Request failed";
+						$scope.status = status;
+						$scope.view = './view/list.html';
+					});
+			}
+			$scope.view = './view//list.html'; //set default view
+			$scope.listApps();
 		});
+		
 	</script>
 
 </body>
